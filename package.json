@@ -1,0 +1,349 @@
+{
+	"name": "clangtidygui",
+    "displayName": "Clang Tidy GUI",
+    "publisher": "timzoet",
+	"description": "Clang Tidy GUI integrates clang-tidy into Visual Studio Code and displays all diagnostics in a convenient interface.",
+	"version": "1.0.0",
+	"engines": {
+		"vscode": "^1.48.0"
+	},
+	"categories": [
+		"Other"
+	],
+	"activationEvents": [
+		"onCommand:clangtidy.clangTidyFile",
+		"onCommand:clangtidy.clangTidyFolder",
+        "onView:clangtidychecks",
+        "onView:clangtidydiagnostics"
+	],
+	"main": "./out/extension.js",
+	"contributes": {
+		"configuration": {
+			"title": "Clang Tidy",
+			"properties": {
+				"clangtidy.buildPath": {
+					"type": "string",
+					"default": "${workspaceFolder}/build",
+					"description": "Path to the build folder containing the compile_commands.json file."
+				},
+				"clangtidy.executablePath": {
+					"type": "string",
+					"default": "clang-tidy",
+					"description": "Path to the clang-tidy executable."
+                },
+				"clangtidy.fileFilter": {
+					"type": "string",
+					"default": ".*\\.(h|hpp|cpp)$",
+					"description": "Regular expression that is used to filter source files when analyzing folders."
+				},
+				"clangtidy.outputPath": {
+					"type": "string",
+					"default": "${workspaceFolder}/build/clang_tidy",
+					"description": "Path to the folder to which output files are written."
+				},
+				"clangtidy.parallelTasks": {
+					"type": "integer",
+					"default": 0,
+					"description": "Number of clang-tidy tasks to run in parallel. Set to 0 to run as many tasks as there are logical cores."
+				},
+				"clangtidy.sourcePath": {
+					"type": "string",
+					"default": "${workspaceFolder}/source",
+					"description": "Path to the folder that contains all source files."
+				}
+			}
+		},
+		"commands": [
+			{
+				"command": "clangtidy.clangTidyFile",
+				"title": "Run Clang Tidy"
+			},
+			{
+				"command": "clangtidy.clangTidyFolder",
+				"title": "Run Clang Tidy (this folder only)"
+            },
+            {
+				"command": "clangtidy.clangTidyFolderRecursive",
+                "title": "Run Clang Tidy"
+			},
+			{
+				"command": "clangtidy.clear",
+				"title": "Clear",
+                "icon": "$(clear-all)"
+            },
+            {
+				"command": "clangtidy.refresh",
+                "title": "Refresh",
+                "icon": "$(search-refresh)"
+			},
+			{
+				"command": "clangtidy.runAll",
+				"title": "Run",
+                "icon": "$(run-all)"
+			},
+            {
+				"command": "clangtidy.sortByCategory",
+				"title": "Sort by Category"
+            },
+            {
+				"command": "clangtidy.sortByCategoryFile",
+				"title": "Sort by Category/File"
+            },
+            {
+				"command": "clangtidy.sortByCategoryFileIssue",
+				"title": "Sort by Category/File/Issue"
+            },
+            {
+				"command": "clangtidy.sortByFile",
+				"title": "Sort by File"
+            },
+            {
+				"command": "clangtidy.sortByFileCategory",
+				"title": "Sort by File/Category"
+            },
+            {
+				"command": "clangtidy.sortByFileCategoryIssue",
+				"title": "Sort by File/Category/Issue"
+            },
+            {
+				"command": "clangtidy.sortByFileIssue",
+				"title": "Sort by File/Issue"
+            },
+            {
+				"command": "clangtidy.sortByIssue",
+				"title": "Sort by Issue"
+            },
+            {
+				"command": "clangtidy.sortByIssueFile",
+				"title": "Sort by Issue/File"
+			},
+			{
+				"command": "clangtidy.toggleAll",
+				"title": "Toggle All"
+			},
+			{
+				"command": "clangtidy.toggleCategory",
+				"title": "Toggle Category"
+			},
+			{
+				"command": "clangtidy.toggleIssue",
+				"title": "Toggle Issue"
+            },
+			{
+				"command": "clangtidy.disableCategories",
+				"title": "Disable Children"
+			},
+			{
+				"command": "clangtidy.enableCategories",
+				"title": "Enable Children"
+			},
+			{
+				"command": "clangtidy.disableIssues",
+				"title": "Disable Children"
+			},
+			{
+				"command": "clangtidy.enableIssues",
+				"title": "Enable Children"
+			},
+			{
+				"command": "clangtidy.deleteFile",
+				"title": "Delete File Diagnostics"
+			},
+			{
+				"command": "clangtidy.rerunFile",
+				"title": "Rerun File"
+			},
+			{
+				"command": "clangtidy.disableDiagnostic",
+				"title": "Disable Issue"
+			},
+			{
+				"command": "clangtidy.disableDiagnosticCategory",
+				"title": "Disable Category (not issues)"
+			},
+			{
+				"command": "clangtidy.disableDiagnosticCategoryChildren",
+				"title": "Disable Category"
+			}
+		],
+		"menus": {
+			"explorer/context": [
+				{
+					"when": "!explorerResourceIsFolder",
+                    "command": "clangtidy.clangTidyFile",
+                    "group": "clangtidy"
+				},
+				{
+					"when": "explorerResourceIsFolder",
+					"command": "clangtidy.clangTidyFolderRecursive",
+                    "group": "clangtidy"
+				},
+				{
+					"when": "explorerResourceIsFolder",
+					"command": "clangtidy.clangTidyFolder",
+                    "group": "clangtidy"
+                }
+            ],
+            "view/title": [
+                {
+                    "when": "view == clangtidydiagnostics",
+                    "command": "clangtidy.runAll",
+                    "group": "navigation"
+                },
+                {
+                    "when": "view == clangtidydiagnostics",
+                    "command": "clangtidy.refresh",
+                    "group": "navigation"
+                },
+                {
+                    "when": "view == clangtidydiagnostics",
+                    "command": "clangtidy.clear",
+                    "group": "navigation"
+                },
+                {
+                    "when": "view == clangtidydiagnostics",
+                    "command": "clangtidy.sortByCategory"
+                },
+                {
+                    "when": "view == clangtidydiagnostics",
+                    "command": "clangtidy.sortByCategoryFile"
+                },
+                {
+                    "when": "view == clangtidydiagnostics",
+                    "command": "clangtidy.sortByCategoryFileIssue"
+                },
+                {
+                    "when": "view == clangtidydiagnostics",
+                    "command": "clangtidy.sortByFile"
+                },
+                {
+                    "when": "view == clangtidydiagnostics",
+                    "command": "clangtidy.sortByFileCategory"
+                },
+                {
+                    "when": "view == clangtidydiagnostics",
+                    "command": "clangtidy.sortByFileCategoryIssue"
+                },
+                {
+                    "when": "view == clangtidydiagnostics",
+                    "command": "clangtidy.sortByFileIssue"
+                },
+                {
+                    "when": "view == clangtidydiagnostics",
+                    "command": "clangtidy.sortByIssue"
+                },
+                {
+                    "when": "view == clangtidydiagnostics",
+                    "command": "clangtidy.sortByIssueFile"
+                }
+            ],
+            "view/item/context": [
+                {
+					"when": "view == clangtidychecks && viewItem == checksAll",
+					"command": "clangtidy.toggleAll",
+                    "group": "clangtidy"
+                },
+                {
+					"when": "view == clangtidychecks && viewItem == checksCategory",
+					"command": "clangtidy.toggleCategory",
+                    "group": "clangtidy"
+                },
+				{
+					"when": "view == clangtidychecks && viewItem == checksIssue",
+					"command": "clangtidy.toggleIssue",
+                    "group": "clangtidy"
+                },
+				{
+					"when": "view == clangtidychecks && viewItem == checksAll",
+					"command": "clangtidy.disableCategories",
+                    "group": "clangtidy"
+				},
+				{
+					"when": "view == clangtidychecks && viewItem == checksAll",
+					"command": "clangtidy.enableCategories",
+                    "group": "clangtidy"
+				},
+				{
+					"when": "view == clangtidychecks && viewItem == checksCategory",
+					"command": "clangtidy.disableIssues",
+                    "group": "clangtidy"
+				},
+				{
+					"when": "view == clangtidychecks && viewItem == checksCategory",
+					"command": "clangtidy.enableIssues",
+                    "group": "clangtidy"
+				},
+				{
+					"when": "view == clangtidydiagnostics && viewItem == file",
+					"command": "clangtidy.deleteFile",
+                    "group": "clangtidy"
+				},
+				{
+					"when": "view == clangtidydiagnostics && viewItem == file",
+					"command": "clangtidy.rerunFile",
+                    "group": "clangtidy"
+				},
+				{
+					"when": "view == clangtidydiagnostics && viewItem == diagnostic",
+					"command": "clangtidy.disableDiagnostic",
+                    "group": "clangtidy"
+				},
+				{
+					"when": "view == clangtidydiagnostics && viewItem == diagnosticCategory",
+					"command": "clangtidy.disableDiagnosticCategoryChildren",
+                    "group": "clangtidy"
+				},
+				{
+					"when": "view == clangtidydiagnostics && viewItem == diagnosticCategory",
+					"command": "clangtidy.disableDiagnosticCategory",
+                    "group": "clangtidy"
+				}
+            ]
+        },
+        "viewsContainers": {
+            "activitybar": [
+                {
+                    "id": "clangtidygui",
+                    "title": "Clang Tidy GUI",
+                    "icon": "resources/icon.svg"
+                }
+            ]
+        },
+		"views": {
+			"clangtidygui": [
+                {
+					"id": "clangtidychecks",
+                    "name": "Clang Tidy Checks"
+				},
+				{
+					"id": "clangtidydiagnostics",
+					"name": "Clang Tidy Diagnostics"
+                }
+			]
+		}
+	},
+	"scripts": {
+		"vscode:prepublish": "npm run compile",
+		"compile": "tsc -p ./",
+		"lint": "eslint src --ext ts",
+		"watch": "tsc -watch -p ./",
+		"pretest": "npm run compile && npm run lint",
+		"test": "node ./out/test/runTest.js"
+	},
+	"devDependencies": {
+		"@types/vscode": "^1.48.0",
+		"@types/glob": "^7.1.3",
+		"@types/mocha": "^8.0.0",
+		"@types/node": "^14.0.27",
+		"eslint": "^7.6.0",
+		"@typescript-eslint/eslint-plugin": "^3.8.0",
+		"@typescript-eslint/parser": "^3.8.0",
+		"glob": "^7.1.6",
+		"mocha": "^8.0.1",
+		"typescript": "^3.8.3",
+		"vscode-test": "^1.4.0"
+	},
+	"dependencies": {
+		"js-yaml": "^3.14.0"
+	}
+}
