@@ -17,7 +17,8 @@
 		"onCommand:clangtidy.clangTidyFile",
 		"onCommand:clangtidy.clangTidyFolder",
         "onView:clangtidychecks",
-        "onView:clangtidydiagnostics"
+        "onView:clangtidydiagnostics",
+        "onStartupFinished"
 	],
 	"main": "./out/extension.js",
 	"contributes": {
@@ -33,6 +34,11 @@
 					"type": "string",
 					"default": "clang-tidy",
 					"description": "Path to the clang-tidy executable."
+                },
+                "clangtidy.extraArguments": {
+					"type": "string",
+					"default": "",
+					"description": "Extra arguments passed to the compiler."
                 },
 				"clangtidy.fileFilter": {
 					"type": "string",

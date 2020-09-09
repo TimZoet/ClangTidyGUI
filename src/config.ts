@@ -51,3 +51,7 @@ export function getSourceFolder() : string {
 export function getFileFilter() : string {
     return <string>getConfig().get('fileFilter');
 }
+
+export function getExtraArguments() : string {
+    return <string>getConfig().get('extraArguments');
+}

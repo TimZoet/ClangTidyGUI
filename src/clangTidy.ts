@@ -1,5 +1,5 @@
 import {execFile} from 'child_process';
-import { readdirSync, statSync } from 'fs';
+import { readdirSync, statSync, existsSync } from 'fs';
 import * as path from 'path';
 import { OutputChannel, window, ProgressLocation } from 'vscode';
 
@@ -48,7 +48,17 @@ export class ClangTidySettings
  */
 function runExecFile(settings: ClangTidySettings, sourceFile: string, outputFile: string) {
     return new Promise((resolve, reject) => {
-        let child = execFile(settings.exe, [settings.checks, '-p', settings.build, `-export-fixes=${outputFile}`, sourceFile], (error, stdout, stderr) => {
+        let args = [];
+        args.push(settings.checks);
+        args.push('-p');
+        args.push(settings.build);
+        args.push(`-export-fixes=${outputFile}`);
+        const extraArgs = cfg.getExtraArguments();
+        if (extraArgs.length > 0)
+            args.push(`-extra-arg="${cfg.getExtraArguments()}"`);
+        args.push(sourceFile);
+
+        let child = execFile(settings.exe, args, (error, stdout, stderr) => {
             if (error) {
                 reject(error);
             }
@@ -72,12 +82,20 @@ export function clangTidyFile(settings: ClangTidySettings, sourceFile: string) :
         // Output filename is hash of source filename.
         const outputFile = path.join(settings.output, getOutputFilename(sourceFile));
 
-        settings.channel.appendLine(`[${new Date().toISOString()}] Running clang-tidy on ${sourceFile}. Writing results to ${outputFile}.`);
+        settings.channel.appendLine(`[${new Date().toISOString()}] Running clang-tidy on ${sourceFile}`);
 
         await runExecFile(settings, sourceFile, outputFile).then(() => {
-            resolve(outputFile);
+            // If clang-tidy did not find any errors, it will not output a file.
+            if (existsSync(outputFile)) {
+                settings.channel.appendLine(`[${new Date().toISOString()}] Writing results for ${sourceFile} to ${outputFile}`);
+                resolve(outputFile);
+            }
+            else {
+                settings.channel.appendLine(`[${new Date().toISOString()}] No problems found for ${sourceFile}`);
+                resolve('');
+            }
         }).catch((error) => {
-            settings.channel.appendLine(`An error occurred when running clang-tidy on ${outputFile}:\n${error}`);
+            settings.channel.appendLine(`[${new Date().toISOString()}] An error occurred when running clang-tidy on ${sourceFile}:\n${error}`);
             resolve('');
         })
     });
@@ -102,6 +120,7 @@ export function clangTidyFolder(settings: ClangTidySettings, folder: string, rec
 
             for (const file of files) {
                 const task = clangTidyFile(settings, file).then((outputFile: string) => {
+                    // If clang-tidy ran successfully, the outputFile is a non-empty string.
                     if (outputFile.length > 0) {
                         outputFiles.push(outputFile);
                     }

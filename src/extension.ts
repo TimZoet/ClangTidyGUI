@@ -11,21 +11,14 @@ import { ChecksTreeView } from './tree/checksTreeView'
 import { DiagnosticsTreeView, SortingType } from './tree/diagnosticsTreeView'
 import { FileTreeItem, DiagnosticTreeItem, CategoryTreeItem, IssueTypeTreeItem } from './tree/diagnosticsTreeItems'
 
-export function activate(context: vscode.ExtensionContext)
+export async function activate(context: vscode.ExtensionContext)
 {
     let channel = vscode.window.createOutputChannel('Clang Tidy');
 
     createOutputFolder();
 
     // Load or create file with enabled and disabled checks.
-    let checks: Checks = {};
-    {
-        let _checks = loadChecksFile();
-        if (!_checks) {
-            return;
-        }
-        checks = _checks!;
-    }
+    let checks = await loadChecksFile();
     let checksString = checksToString(checks);
 
     // Create and register ChecksTreeView.
