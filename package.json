@@ -3,7 +3,10 @@
     "displayName": "Clang Tidy GUI",
     "publisher": "timzoet",
 	"description": "Clang Tidy GUI integrates clang-tidy into Visual Studio Code and displays all diagnostics in a convenient interface.",
-	"version": "1.0.0",
+    "version": "1.0.0",
+    "repository": {
+        "url": "https://github.com/TimZoet/ClangTidyGUI"
+    },
 	"engines": {
 		"vscode": "^1.48.0"
 	},
