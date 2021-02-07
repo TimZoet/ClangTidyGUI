@@ -12,17 +12,6 @@ Clang Tidy GUI integrates clang-tidy into Visual Studio Code and displays all di
 * Results are stored on disk and therefore persist when closing VS Code.
 * Configure the number of files that is analysed in parallel.
 
-## Extension Settings
-
-This extension contributes the following settings:
-
-* `clangtidy.buildPath`: Path to the build folder containing the compile_commands.json file.
-* `clangtidy.executablePath`: Path to the clang-tidy executable.
-* `clangtidy.fileFilter`: Regular expression that is used to filter source files when analyzing folders.
-* `clangtidy.outputPath`: Path to the folder to which output files are written.
-* `clangtidy.parallelTasks`: Number of clang-tidy tasks to run in parallel. Set to 0 to run as many tasks as there are logical cores.
-* `clangtidy.sourcePath`: Path to the folder that contains all source files.
-
 ## Requirements
 
 * This extension uses the [js-yaml](https://www.npmjs.com/package/js-yaml) package.
@@ -30,6 +19,17 @@ This extension contributes the following settings:
 * Your build system will need to output a `compile_commands.json` file for clang-tidy.
 
 ## Release Notes
+
+### 1.2.0
+
+* Added separate path for the checks.json file to allow easier sharing of settings between projects.
+* Source path now supports adding one or more subfolders.
+* Fixed file filter only being applied to filename instead of full path.
+
+### 1.1.0
+
+* Added setting to pass extra compiler arguments to clang-tidy.
+* Fixed several small bugs.
 
 ### 1.0.0
 
