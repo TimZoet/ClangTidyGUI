@@ -22,7 +22,7 @@ export function getParallelTasks() : Number {
         return 1;
     
     // 0, return core count.
-    if (tasks == 0)
+    if (tasks === 0)
         return cpus().length;
 
     // Explicit value.
@@ -38,14 +38,31 @@ export function getBuildFolder() : string {
     return convertWorkspaceFolder(folder);
 }
 
+export function getChecksFolder() : string {
+    const folder = <string>getConfig().get('checksPath');
+    return convertWorkspaceFolder(folder);
+}
+
 export function getOutputFolder() : string {
     const folder = <string>getConfig().get('outputPath');
     return convertWorkspaceFolder(folder);
 }
 
 export function getSourceFolder() : string {
-    const folder = <string>getConfig().get('sourcePath');
-    return convertWorkspaceFolder(folder);
+    // Split string on , and ;.
+    const folders = (<string>getConfig().get('sourcePath')).replace(',', ';').split(';');
+    const rootFolder = convertWorkspaceFolder(folders[0]);
+    return rootFolder;
+}
+
+export function getSourceSubFolders() : string[] {
+    // Split string on , and ;.
+    const folders = (<string>getConfig().get('sourcePath')).replace(',', ';').split(';');
+    const rootFolder = convertWorkspaceFolder(folders[0]);
+    const subFolders = folders.slice(1).filter(f => f.length > 0).map(f => join(rootFolder, f));
+    if (subFolders.length === 0)
+        return [rootFolder];
+    return subFolders;
 }
 
 export function getFileFilter() : string {

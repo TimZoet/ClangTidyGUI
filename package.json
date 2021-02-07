@@ -30,6 +30,11 @@
 					"default": "${workspaceFolder}/build",
 					"description": "Path to the build folder containing the compile_commands.json file."
 				},
+                "clangtidy.checksPath": {
+					"type": "string",
+					"default": "${workspaceFolder}",
+					"description": "Path to the folder in which the checks.json file is stored. (Restart required after change.)"
+				},
 				"clangtidy.executablePath": {
 					"type": "string",
 					"default": "clang-tidy",
@@ -43,7 +48,7 @@
 				"clangtidy.fileFilter": {
 					"type": "string",
 					"default": ".*\\.(h|hpp|cpp)$",
-					"description": "Regular expression that is used to filter source files when analyzing folders."
+					"description": "Regular expression that is used to filter source files when analyzing the entire project or folders. Files not matching the filter are ignored. The full file path is compared with the regex."
 				},
 				"clangtidy.outputPath": {
 					"type": "string",
@@ -58,7 +63,7 @@
 				"clangtidy.sourcePath": {
 					"type": "string",
 					"default": "${workspaceFolder}/source",
-					"description": "Path to the folder that contains all source files."
+					"description": "Path to the root folder that contains all source files. clang-tidy is run on this folder when running on the entire project from the diagnostics window. Can optionally contain subfolders separated using ';'. These are appended to the root folder. 'foo/bar;sub1;sub2' will run clang-tidy on 'foo/bar/sub1' and 'foo/bar/sub2'"
 				}
 			}
 		},

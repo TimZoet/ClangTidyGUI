@@ -6,10 +6,10 @@ import { Checks, loadChecksFile, checksToString, saveChecks } from './checks';
 import * as cfg from './config';
 import { createOutputFolder, clearOutputFolder, getOutputFilename } from './output';
 import { addOutputFolderToTree, runFile, runFolder } from './run';
-import { ChecksTreeItem, ChecksCategoryTreeItem, ChecksIssueTreeItem } from './tree/checksTreeItems'
-import { ChecksTreeView } from './tree/checksTreeView'
-import { DiagnosticsTreeView, SortingType } from './tree/diagnosticsTreeView'
-import { FileTreeItem, DiagnosticTreeItem, CategoryTreeItem, IssueTypeTreeItem } from './tree/diagnosticsTreeItems'
+import { ChecksTreeItem, ChecksCategoryTreeItem, ChecksIssueTreeItem } from './tree/checksTreeItems';
+import { ChecksTreeView } from './tree/checksTreeView';
+import { DiagnosticsTreeView, SortingType } from './tree/diagnosticsTreeView';
+import { FileTreeItem, DiagnosticTreeItem, CategoryTreeItem, IssueTypeTreeItem } from './tree/diagnosticsTreeItems';
 
 export async function activate(context: vscode.ExtensionContext)
 {
@@ -66,7 +66,9 @@ export async function activate(context: vscode.ExtensionContext)
     context.subscriptions.push(vscode.commands.registerCommand('clangtidy.runAll', async () => {
         clearOutputFolder();
         diagnosticsTreeView.clear();
-        await runFolder(diagnosticsTreeView, cfg.getSourceFolder(), true, checksString, channel);
+        cfg.getSourceSubFolders().forEach(
+            async folder => await runFolder(diagnosticsTreeView, folder, true, checksString, channel)
+        );
     }));
 
     /**

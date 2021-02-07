@@ -5,7 +5,7 @@ import * as vscode from 'vscode';
 import * as run from './clangTidy';
 import * as cfg from './config';
 import * as parser from './parser';
-import { DiagnosticsTreeView } from './tree/diagnosticsTreeView'
+import { DiagnosticsTreeView } from './tree/diagnosticsTreeView';
 
 /**
  * Add the diagnostics of a single file to the tree.
@@ -20,7 +20,7 @@ export function addFileToTree(tree: DiagnosticsTreeView, file: string) {
  */
 export function addOutputFolderToTree(tree: DiagnosticsTreeView) {
     const out = cfg.getOutputFolder();
-    const files = fs.readdirSync(out).filter(f => { return path.extname(f) == '.yaml' });
+    const files = fs.readdirSync(out).filter(f => { return path.extname(f) ==='.yaml'; });
     for (const f of files) {
         addFileToTree(tree, path.join(out, f));
     }

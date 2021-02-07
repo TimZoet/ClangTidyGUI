@@ -7,7 +7,7 @@ import * as cfg from './config';
 import { getOutputFilename } from './output';
 
 function getFiles(folder: string, recurse: boolean) : string[] {
-    let filter: RegExp = RegExp(cfg.getFileFilter());///.*\.h/;
+    let filter: RegExp = RegExp(cfg.getFileFilter());
     let allFiles: string[] = [];
 
     readdirSync(folder).forEach((f) => {
@@ -19,7 +19,7 @@ function getFiles(folder: string, recurse: boolean) : string[] {
         }
         // Test file against filter.
         else {
-            if (filter.test(f))
+            if (filter.test(file))
                 allFiles.push(file);
         }
     });

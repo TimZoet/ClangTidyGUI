@@ -12,7 +12,7 @@ export type Checks = {[k: string]: any};
  */
 export async function loadChecksFile(): Promise<Checks> {
     return new Promise((resolve, reject) => {
-        const checksFile = path.join(cfg.getOutputFolder(), 'checks.json');
+        const checksFile = path.join(cfg.getChecksFolder(), 'checks.json');
     
         if (!fs.existsSync(checksFile)) {
             // Ask clang-tidy to list all available checks.
@@ -55,7 +55,7 @@ export async function loadChecksFile(): Promise<Checks> {
 }
 
 export function saveChecks(checks: Checks) {
-    const checksFile = path.join(cfg.getOutputFolder(), 'checks.json');
+    const checksFile = path.join(cfg.getChecksFolder(), 'checks.json');
     fs.writeFileSync(checksFile, JSON.stringify(checks));
 }
 
@@ -73,18 +73,18 @@ export function checksToString(checks: Checks): string {
         const catEnabled = checks['categories'][cat]['enabled'];
 
         // If category enabled state is different from all, append either 'category-*' or '-category-*'.
-        if (catEnabled != allEnabled) {
+        if (catEnabled !== allEnabled) {
             str += `,${catEnabled ? '' : '-'}${cat}-*`;
         }
 
         Object.keys(checks['categories'][cat]['issues']).forEach(i => {
-            const issueEnabled: boolean = checks['categories'][cat]['issues'][i]
+            const issueEnabled: boolean = checks['categories'][cat]['issues'][i];
 
             // If issue enabled state is different from category, append either 'issue' or '-issue'.
-            if (issueEnabled != catEnabled) {
+            if (issueEnabled !== catEnabled) {
                 str += `,${issueEnabled ? '' : '-'}${i}`;
             }
-        })
+        });
     });
 
     return str;
