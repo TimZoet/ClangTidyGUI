@@ -97,7 +97,7 @@ export function clangTidyFile(settings: ClangTidySettings, sourceFile: string) :
         }).catch((error) => {
             settings.channel.appendLine(`[${new Date().toISOString()}] An error occurred when running clang-tidy on ${sourceFile}:\n${error}`);
             resolve('');
-        })
+        });
     });
 }
 
@@ -108,17 +108,25 @@ export function clangTidyFolder(settings: ClangTidySettings, folder: string, rec
             title: `Running clang-tidy on ${folder}`,
             cancellable: true
         }, async (progress, token) => {
+
+            let cancelled = false;
             token.onCancellationRequested(() => {
-                settings.channel.appendLine('Cancelled clang-tidy');
+                cancelled = true;
+                window.showInformationMessage('Cancelled clang-tidy, please wait for remaining tasks to complete');
+                settings.channel.appendLine('Cancelled clang-tidy, please wait for remaining tasks to complete');
             });
 
-            const taskCount = cfg.getParallelTasks();
+            const taskCount = await cfg.getParallelTasks();
             const files = getFiles(folder, recursive);
             let outputFiles: string[] = [];
             let tasks: Promise<void>[] = [];
             const inc = 100.0 / files.length;
 
             for (const file of files) {
+                if (cancelled) {
+                    break;
+                }
+
                 const task = clangTidyFile(settings, file).then((outputFile: string) => {
                     // If clang-tidy ran successfully, the outputFile is a non-empty string.
                     if (outputFile.length > 0) {
@@ -143,6 +151,8 @@ export function clangTidyFolder(settings: ClangTidySettings, folder: string, rec
             // Wait for remaining tasks.
             await Promise.all(tasks);
             resolve(outputFiles);
+
+            window.showInformationMessage('All clang-tidy tasks finished');
         });
     });
 }

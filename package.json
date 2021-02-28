@@ -28,17 +28,17 @@
 				"clangtidy.buildPath": {
 					"type": "string",
 					"default": "${workspaceFolder}/build",
-					"description": "Path to the build folder containing the compile_commands.json file."
+					"description": "Path to the build folder containing the compile_commands.json file. Supported variables: ${workspaceFolder}, ${cpptools.config}."
 				},
 				"clangtidy.checksPath": {
 					"type": "string",
 					"default": "${workspaceFolder}",
-					"description": "Path to the folder in which the checks.json file is stored. (Restart required after change.)"
+					"description": "Path to the folder in which the checks.json file is stored. Supported variables: ${workspaceFolder}, ${cpptools.config}. (Restart required after change.)"
 				},
 				"clangtidy.executablePath": {
 					"type": "string",
 					"default": "clang-tidy",
-					"description": "Path to the clang-tidy executable."
+					"description": "Path to the clang-tidy executable. Supported variables: ${workspaceFolder}, ${cpptools.config}."
 				},
 				"clangtidy.extraArguments": {
 					"type": "string",
@@ -53,7 +53,7 @@
 				"clangtidy.outputPath": {
 					"type": "string",
 					"default": "${workspaceFolder}/build/clang_tidy",
-					"description": "Path to the folder to which output files are written."
+					"description": "Path to the folder to which output files are written. Supported variables: ${workspaceFolder}, ${cpptools.config}."
 				},
 				"clangtidy.parallelTasks": {
 					"type": "integer",
@@ -63,7 +63,7 @@
 				"clangtidy.sourcePath": {
 					"type": "string",
 					"default": "${workspaceFolder}/source",
-					"description": "Path to the root folder that contains all source files. clang-tidy is run on this folder when running on the entire project from the diagnostics window. Can optionally contain subfolders separated using ';'. These are appended to the root folder. 'foo/bar;sub1;sub2' will run clang-tidy on 'foo/bar/sub1' and 'foo/bar/sub2'"
+					"description": "Path to the root folder that contains all source files. clang-tidy is run on this folder when running on the entire project from the diagnostics window. Can optionally contain subfolders separated using ';'. These are appended to the root folder. 'foo/bar;sub1;sub2' will run clang-tidy on 'foo/bar/sub1' and 'foo/bar/sub2'. Supported variables: ${workspaceFolder}."
 				}
 			}
 		},

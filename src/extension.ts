@@ -15,7 +15,7 @@ export async function activate(context: vscode.ExtensionContext)
 {
     let channel = vscode.window.createOutputChannel('Clang Tidy');
 
-    createOutputFolder();
+    await createOutputFolder();
 
     // Load or create file with enabled and disabled checks.
     let checks = await loadChecksFile();
@@ -53,8 +53,8 @@ export async function activate(context: vscode.ExtensionContext)
      * DiagnosticsTreeView title navigation commands.
      */
 
-    context.subscriptions.push(vscode.commands.registerCommand('clangtidy.clear', () => {
-        clearOutputFolder();
+    context.subscriptions.push(vscode.commands.registerCommand('clangtidy.clear', async () => {
+        await clearOutputFolder();
         diagnosticsTreeView.clear();
     }));
 
@@ -64,9 +64,9 @@ export async function activate(context: vscode.ExtensionContext)
     }));
 
     context.subscriptions.push(vscode.commands.registerCommand('clangtidy.runAll', async () => {
-        clearOutputFolder();
+        await clearOutputFolder();
         diagnosticsTreeView.clear();
-        cfg.getSourceSubFolders().forEach(
+        (await cfg.getSourceSubFolders()).forEach(
             async folder => await runFolder(diagnosticsTreeView, folder, true, checksString, channel)
         );
     }));
@@ -115,63 +115,63 @@ export async function activate(context: vscode.ExtensionContext)
      * ChecksTreeView item context commands.
      */
 
-    context.subscriptions.push(vscode.commands.registerCommand('clangtidy.toggleAll', (item: ChecksTreeItem) => {
+    context.subscriptions.push(vscode.commands.registerCommand('clangtidy.toggleAll', async (item: ChecksTreeItem) => {
         checks['enabled'] = !checks['enabled'];
         checksTreeView.setChecks(checks);
-        saveChecks(checks);
+        await saveChecks(checks);
         checksString = checksToString(checks);
     }));
 
-    context.subscriptions.push(vscode.commands.registerCommand('clangtidy.toggleCategory', (item: ChecksCategoryTreeItem) => {
+    context.subscriptions.push(vscode.commands.registerCommand('clangtidy.toggleCategory', async (item: ChecksCategoryTreeItem) => {
         const enabled = checks['categories'][item.category]['enabled'];
         checks['categories'][item.category]['enabled'] = !enabled;
         checksTreeView.setChecks(checks);
-        saveChecks(checks);
+        await saveChecks(checks);
         checksString = checksToString(checks);
     }));
 
-    context.subscriptions.push(vscode.commands.registerCommand('clangtidy.toggleIssue', (item: ChecksIssueTreeItem) => {
+    context.subscriptions.push(vscode.commands.registerCommand('clangtidy.toggleIssue', async (item: ChecksIssueTreeItem) => {
         const cat = item.issue.split('-')[0];
         const enabled = checks['categories'][cat]['issues'][item.issue];
         checks['categories'][cat]['issues'][item.issue] = !enabled;
         checksTreeView.setChecks(checks);
-        saveChecks(checks);
+        await saveChecks(checks);
         checksString = checksToString(checks);
     }));
 
-    context.subscriptions.push(vscode.commands.registerCommand('clangtidy.disableCategories', (item: ChecksTreeItem) => {
+    context.subscriptions.push(vscode.commands.registerCommand('clangtidy.disableCategories', async (item: ChecksTreeItem) => {
         Object.keys(checks['categories']).forEach(c =>
             checks['categories'][c]['enabled'] = false
         );
         checksTreeView.setChecks(checks);
-        saveChecks(checks);
+        await saveChecks(checks);
         checksString = checksToString(checks);
     }));
 
-    context.subscriptions.push(vscode.commands.registerCommand('clangtidy.enableCategories', (item: ChecksTreeItem) => {
+    context.subscriptions.push(vscode.commands.registerCommand('clangtidy.enableCategories', async (item: ChecksTreeItem) => {
         Object.keys(checks['categories']).forEach(c =>
             checks['categories'][c]['enabled'] = true
         );
         checksTreeView.setChecks(checks);
-        saveChecks(checks);
+        await saveChecks(checks);
         checksString = checksToString(checks);
     }));
 
-    context.subscriptions.push(vscode.commands.registerCommand('clangtidy.disableIssues', (item: ChecksCategoryTreeItem) => {
+    context.subscriptions.push(vscode.commands.registerCommand('clangtidy.disableIssues', async (item: ChecksCategoryTreeItem) => {
         Object.keys(checks['categories'][item.category]['issues']).forEach(i =>
             checks['categories'][item.category]['issues'][i] = false
         );
         checksTreeView.setChecks(checks);
-        saveChecks(checks);
+        await saveChecks(checks);
         checksString = checksToString(checks);
     }));
 
-    context.subscriptions.push(vscode.commands.registerCommand('clangtidy.enableIssues', (item: ChecksCategoryTreeItem) => {
+    context.subscriptions.push(vscode.commands.registerCommand('clangtidy.enableIssues', async (item: ChecksCategoryTreeItem) => {
         Object.keys(checks['categories'][item.category]['issues']).forEach(i =>
             checks['categories'][item.category]['issues'][i] = true
         );
         checksTreeView.setChecks(checks);
-        saveChecks(checks);
+        await saveChecks(checks);
         checksString = checksToString(checks);
     }));
 
@@ -179,8 +179,9 @@ export async function activate(context: vscode.ExtensionContext)
      * DiagnosticsTreeView item context commands.
      */
 
-    context.subscriptions.push(vscode.commands.registerCommand('clangtidy.deleteFile', (item: FileTreeItem) => {
-        fs.unlinkSync(path.join(cfg.getOutputFolder(), getOutputFilename(item.sourceFile)));
+    context.subscriptions.push(vscode.commands.registerCommand('clangtidy.deleteFile', async (item: FileTreeItem) => {
+        const outputFolder = await cfg.getOutputFolder();
+        fs.unlinkSync(path.join(outputFolder, getOutputFilename(item.sourceFile)));
         diagnosticsTreeView.clear();
         addOutputFolderToTree(diagnosticsTreeView);
     }));
@@ -202,30 +203,30 @@ export async function activate(context: vscode.ExtensionContext)
         });
     }));
 
-    context.subscriptions.push(vscode.commands.registerCommand('clangtidy.disableDiagnostic', (item: DiagnosticTreeItem) => {
+    context.subscriptions.push(vscode.commands.registerCommand('clangtidy.disableDiagnostic', async (item: DiagnosticTreeItem) => {
         const cat = item.diagnostic.category;
         checks['categories'][cat]['issues'][item.diagnostic.issue] = false;
         checksTreeView.setChecks(checks);
-        saveChecks(checks);
+        await saveChecks(checks);
         checksString = checksToString(checks);
     }));
 
-    context.subscriptions.push(vscode.commands.registerCommand('clangtidy.disableDiagnosticCategory', (item: CategoryTreeItem) => {
+    context.subscriptions.push(vscode.commands.registerCommand('clangtidy.disableDiagnosticCategory', async (item: CategoryTreeItem) => {
         const cat = item.category;
         checks['categories'][cat]['enabled'] = false;
         checksTreeView.setChecks(checks);
-        saveChecks(checks);
+        await saveChecks(checks);
         checksString = checksToString(checks);
     }));
 
-    context.subscriptions.push(vscode.commands.registerCommand('clangtidy.disableDiagnosticCategoryChildren', (item: CategoryTreeItem) => {
+    context.subscriptions.push(vscode.commands.registerCommand('clangtidy.disableDiagnosticCategoryChildren', async (item: CategoryTreeItem) => {
         const cat = item.category;
         checks['categories'][cat]['enabled'] = false;
         Object.keys(checks['categories'][cat]['issues']).forEach(i =>
             checks['categories'][cat]['issues'][i] = false
         );
         checksTreeView.setChecks(checks);
-        saveChecks(checks);
+        await saveChecks(checks);
         checksString = checksToString(checks);
     }));
 }

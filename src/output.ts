@@ -7,17 +7,18 @@ import * as cfg from './config';
 /**
  * Create the output folder.
  */
-export function createOutputFolder() {
-    if (!fs.existsSync(cfg.getOutputFolder())) {
-        fs.mkdirSync(cfg.getOutputFolder(), { recursive: true });
+export async function createOutputFolder() {
+    const outputFolder = await cfg.getOutputFolder();
+    if (!fs.existsSync(outputFolder)) {
+        fs.mkdirSync(outputFolder, { recursive: true });
     }
 }
 
 /**
  * Remove all YAML files from the output folder.
  */
-export function clearOutputFolder() {
-    const out = cfg.getOutputFolder();
+export async function clearOutputFolder() {
+    const out = await cfg.getOutputFolder();
     fs.readdirSync(out).filter(f => path.extname(f) === '.yaml').forEach(f => fs.unlinkSync(path.join(out, f)));
 }
 
@@ -26,5 +27,5 @@ export function clearOutputFolder() {
  * @param sourceFile Full path to source file.
  */
 export function getOutputFilename(sourceFile: string): string {
-    return createHash('md5').update(sourceFile).digest('hex').concat('.yaml')
+    return createHash('md5').update(sourceFile).digest('hex').concat('.yaml');
 }

@@ -18,8 +18,8 @@ export function addFileToTree(tree: DiagnosticsTreeView, file: string) {
 /**
  * Add the diagnostics of all analyzed files to the tree.
  */
-export function addOutputFolderToTree(tree: DiagnosticsTreeView) {
-    const out = cfg.getOutputFolder();
+export async function addOutputFolderToTree(tree: DiagnosticsTreeView) {
+    const out = await cfg.getOutputFolder();
     const files = fs.readdirSync(out).filter(f => { return path.extname(f) ==='.yaml'; });
     for (const f of files) {
         addFileToTree(tree, path.join(out, f));
@@ -32,7 +32,10 @@ export function addOutputFolderToTree(tree: DiagnosticsTreeView) {
  * @param sourceFile Full path to source file.
  */
 export async function runFile(tree: DiagnosticsTreeView, sourceFile: string, checks: string, channel: vscode.OutputChannel) {
-    const settings = new run.ClangTidySettings(cfg.getClangTidyExecutable(), cfg.getBuildFolder(), cfg.getOutputFolder(), channel, checks);
+    const exe = await cfg.getClangTidyExecutable();
+    const buildFolder = await cfg.getBuildFolder();
+    const outputFolder = await cfg.getOutputFolder();
+    const settings = new run.ClangTidySettings(exe, buildFolder, outputFolder, channel, checks);
 
     // Create output directory.
     fs.mkdirSync(settings.output, { recursive: true });
@@ -53,7 +56,10 @@ export async function runFile(tree: DiagnosticsTreeView, sourceFile: string, che
  * @param recursive 
  */
 export async function runFolder(tree: DiagnosticsTreeView, folder: string, recursive: boolean, checks: string, channel: vscode.OutputChannel) {
-    const settings = new run.ClangTidySettings(cfg.getClangTidyExecutable(), cfg.getBuildFolder(), cfg.getOutputFolder(), channel, checks);
+    const exe = await cfg.getClangTidyExecutable();
+    const buildFolder = await cfg.getBuildFolder();
+    const outputFolder = await cfg.getOutputFolder();
+    const settings = new run.ClangTidySettings(exe, buildFolder, outputFolder, channel, checks);
 
     // Create output directory.
     fs.mkdirSync(settings.output, { recursive: true });

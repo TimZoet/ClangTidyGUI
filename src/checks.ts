@@ -11,12 +11,14 @@ export type Checks = {[k: string]: any};
  * Load the checks file, or create it with all diagnostics enabled if it does not exist.
  */
 export async function loadChecksFile(): Promise<Checks> {
-    return new Promise((resolve, reject) => {
-        const checksFile = path.join(cfg.getChecksFolder(), 'checks.json');
+    return new Promise(async (resolve, reject) => {
+        const checksFolder = await cfg.getChecksFolder();
+        const checksFile = path.join(checksFolder, 'checks.json');
     
         if (!fs.existsSync(checksFile)) {
             // Ask clang-tidy to list all available checks.
-            execFile(cfg.getClangTidyExecutable(), ['-checks=*', '-list-checks'], (error, stdout, stderr) => {
+            const exe = await cfg.getClangTidyExecutable();
+            execFile(exe, ['-checks=*', '-list-checks'], async (error, stdout, stderr) => {
                 if (error) {
                     vscode.window.showErrorMessage(`Clang Tidy: Could not create file ${checksFile}`);
                     reject();
@@ -43,7 +45,7 @@ export async function loadChecksFile(): Promise<Checks> {
                     checks['categories'][category]['issues'][c] = true;
                 });
 
-                saveChecks(checks);
+                await saveChecks(checks);
                 resolve(checks);
             });
         }
@@ -54,8 +56,9 @@ export async function loadChecksFile(): Promise<Checks> {
     });
 }
 
-export function saveChecks(checks: Checks) {
-    const checksFile = path.join(cfg.getChecksFolder(), 'checks.json');
+export async function saveChecks(checks: Checks) {
+    const checksFolder = await cfg.getChecksFolder();
+    const checksFile = path.join(checksFolder, 'checks.json');
     fs.writeFileSync(checksFile, JSON.stringify(checks));
 }
 
