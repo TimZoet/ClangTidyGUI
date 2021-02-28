@@ -20,6 +20,11 @@ Clang Tidy GUI integrates clang-tidy into Visual Studio Code and displays all di
 
 ## Release Notes
 
+### 1.3.0
+
+* Added new ${cpptools.config} variable that is substituted with the selected configuration when using the Microsoft C/C++ extension.
+* Fixed ${workspaceFolder} being ignored in Executable Path setting.
+
 ### 1.2.0
 
 * Added separate path for the checks.json file to allow easier sharing of settings between projects.
