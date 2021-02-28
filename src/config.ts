@@ -30,7 +30,8 @@ export function getParallelTasks() : Number {
 }
 
 export function getClangTidyExecutable() : string {
-    return <string>getConfig().get('executablePath');
+    const folder = <string>getConfig().get('executablePath');
+    return convertWorkspaceFolder(folder);
 }
 
 export function getBuildFolder() : string {
